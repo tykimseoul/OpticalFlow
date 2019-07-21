@@ -13,10 +13,8 @@ class Sparse:
         self.lk_params = dict(winSize=(15, 15), maxLevel=2, criteria=(cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
         # The video feed is read in as a VideoCapture object
         self.cap = cv.VideoCapture(self.video)
-        # Variable for color to draw optical flow track
-        self.color = (0, 255, 0)
         # ret = a boolean return value from getting the frame, first_frame = the first frame in the entire video sequence
-        self.ret, self.first_frame = self.cap.read()
+        _, self.first_frame = self.cap.read()
         # Converts frame to grayscale because we only need the luminance channel for detecting edges - less computationally expensive
         self.prev_gray = cv.cvtColor(self.first_frame, cv.COLOR_BGR2GRAY)
         # Finds the strongest corners in the first frame by Shi-Tomasi method - we will track the optical flow for these corners
@@ -40,13 +38,13 @@ class Sparse:
         # Draws the optical flow tracks
         for i, (new, old) in enumerate(zip(good_new, good_old)):
             # Returns a contiguous flattened array as (x, y) coordinates for new point
-            a, b = new.ravel()
+            new_x, new_y = new.ravel()
             # Returns a contiguous flattened array as (x, y) coordinates for old point
-            c, d = old.ravel()
+            old_x, old_y = old.ravel()
             # Draws line between new and old position with green color and 2 thickness
-            self.mask = cv.line(self.mask, (a, b), (c, d), self.color, 2)
+            self.mask = cv.line(self.mask, (new_x, new_y), (old_x, old_y), (0, 255, 0), 2)
             # Draws filled circle (thickness of -1) at new position with green color and radius of 3
-            frame = cv.circle(frame, (a, b), 3, self.color, -1)
+            frame = cv.circle(frame, (new_x, new_y), 3, (0, 255, 0), -1)
         # Updates previous frame
         self.prev_gray = gray.copy()
         # Updates previous good feature points
