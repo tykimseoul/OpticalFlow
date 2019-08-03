@@ -9,12 +9,11 @@ class Dense:
     def configure(self):
         # The video feed is read in as a VideoCapture object
         self.capture = cv.VideoCapture(self.video)
-        # ret = a boolean return value from getting the frame, first_frame = the first frame in the entire video sequence
-        self.ret, self.first_frame = self.capture.read()
+        _, self.prev_frame = self.capture.read()
         # Converts frame to grayscale because we only need the luminance channel for detecting edges - less computationally expensive
-        self.prev_gray = cv.cvtColor(self.first_frame, cv.COLOR_BGR2GRAY)
+        self.prev_gray = cv.cvtColor(self.prev_frame, cv.COLOR_BGR2GRAY)
         # Creates an image filled with zero intensities with the same dimensions as the frame
-        self.mask = np.zeros_like(self.first_frame)
+        self.mask = np.zeros_like(self.prev_frame)
         # Sets image saturation to maximum
         self.mask[..., 1] = 255
 
@@ -39,6 +38,29 @@ class Dense:
         # Updates previous frame
         self.prev_gray = gray
         return rgb, frame
+
+    def interpolate(self, count):
+        _, frame = self.capture.read()
+
+        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        flow = cv.calcOpticalFlowFarneback(self.prev_gray, gray, None, 0.5, 30, 15, 3, 5, 1.2, 0)
+        interpolated = self.remap_image(self.prev_frame, flow, count)
+        print(interpolated.shape)
+        self.prev_gray = gray
+        cv.imwrite("prev.jpg", self.prev_frame)
+        cv.imwrite("interp.jpg", interpolated[0])
+        cv.imwrite("current.jpg", frame)
+
+    def remap_image(self, prev, flow, count):
+        interpolated = np.zeros((count - 1,) + prev.shape)
+        for i in range(1, count):
+            middle = np.copy(prev)
+            for y, x in np.ndindex(prev.shape[:2]):
+                xf, yf = flow[y][x]
+                middle[int(round(y + yf / count * i))][int(round(x + xf / count * i))] = prev[y][x]
+            interpolated[i - 1] = middle
+            print(middle.shape)
+        return interpolated
 
     def release(self):
         self.capture.release()
