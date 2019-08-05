@@ -14,9 +14,9 @@ class Sparse:
         # The video feed is read in as a VideoCapture object
         self.cap = cv.VideoCapture(self.video)
         # ret = a boolean return value from getting the frame, first_frame = the first frame in the entire video sequence
-        # _, self.prev_frame = self.cap.read()
-        self.prev_frame = cv.imread('one.png', 1)
-        self.prev_frame = cv.resize(self.prev_frame, (1920, 1200), interpolation=cv.INTER_AREA)
+        _, self.prev_frame = self.cap.read()
+        # self.prev_frame = cv.imread('one.png', 1)
+        # self.prev_frame = cv.resize(self.prev_frame, (1920, 1200), interpolation=cv.INTER_AREA)
         # Converts frame to grayscale because we only need the luminance channel for detecting edges - less computationally expensive
         self.prev_gray = cv.cvtColor(self.prev_frame, cv.COLOR_BGR2GRAY)
         # Finds the strongest corners in the first frame by Shi-Tomasi method - we will track the optical flow for these corners

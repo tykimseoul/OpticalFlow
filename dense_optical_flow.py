@@ -51,6 +51,7 @@ class Dense:
         cv.imwrite("interp.jpg", interpolated[0])
         cv.imwrite("current.jpg", frame)
 
+    # using the flow, make new frames by interpolating from the previous frame
     def remap_image(self, prev, flow, count):
         interpolated = np.zeros((count - 1,) + prev.shape)
         for i in range(1, count):

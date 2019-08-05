@@ -12,8 +12,8 @@ dense.configure()
 def flow():
     while sparse.cap.isOpened() and dense.capture.isOpened():
         sp, f = sparse.flow()
-        dn, _ = dense.flow()
-        output = cv.add(cv.add(f, sp), dn)
+        # dn, f = dense.flow()
+        output = cv.add(f, sp)
         # output = cv.add(f, dn)
         # Opens a new window and displays the output frame
         cv.imshow("optical flow", output)
@@ -25,7 +25,7 @@ def interpolate():
     dense.interpolate(2)
 
 
-interpolate()
+flow()
 sparse.release()
 dense.release()
 cv.destroyAllWindows()
